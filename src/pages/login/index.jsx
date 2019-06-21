@@ -16,6 +16,9 @@ class Login extends Component{
     };
 
     render() {
+        // getFieldDecorator为一个高阶组件
+        const { getFieldDecorator } = this.props.form;
+
         return <div className="login">
                 <header className="login-header">
                     <img src={logo} alt="logo"/>
@@ -25,7 +28,19 @@ class Login extends Component{
                     <h2>用户登录</h2>
                     <Form onSubmit={this.login} className="login-form">
                         <Item>
-                            <Input prefix={<Icon type="user" />} placeholder="用户名" />
+                            {
+                                getFieldDecorator("username", {
+                                        rules: [
+                                            {required: true, message: '请输入用户名！'},
+                                            {min: 4, message: '用户名必须大于4位'},
+                                            {max: 15, message: '用户名必须小于15位'},
+                                            {pattern: /^[a-zA-Z0-9]+$/,message: '用户名只能包含英文字母、数字和下划线'}
+                                        ]
+                                    }
+                                )(
+                                    <Input prefix={<Icon type="user" />} placeholder="用户名" />
+                                )
+                            }
                         </Item>
                         <Item>
                             <Input prefix={<Icon type="lock" />} placeholder="密码" type="password"/>
@@ -39,4 +54,6 @@ class Login extends Component{
     }
 }
 
-export default Login;
+// 返回值为一个包装组件 <From(Login)><Login></From(Login)>
+// 通过Form(Login)包装组件向Login组件传递form属性
+export default Form.create()(Login);
