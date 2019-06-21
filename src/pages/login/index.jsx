@@ -13,12 +13,23 @@ class Login extends Component{
     // 阻止submit默认提交表单
     login = (e) => {
       e.preventDefault();
+
+      this.props.form.validateFields = (error, values) => {
+          // error传是校验结果   null：校验通过   {}：校验失败
+          // values获取当前输入表单的值
+          if(!error) {
+              // 校验通过,获取表单的值
+              const { username, password } = values;
+              console.log(username, password);
+          } else {
+              // 校验失败，则不获取表单的值
+              console.log('登录表单校验失败：', error);
+          }
+        }
     };
 
     // 自定义校验的函数
     validator = (rule, value, callback) => {
-        // error传是校验结果   null：校验通过   {}：校验失败
-        // value传的当前输入的值
         const name = rule.fullField === 'username' ? '用户名' :  '密码';
 
         if(!value) {
