@@ -15,6 +15,27 @@ class Login extends Component{
       e.preventDefault();
     };
 
+    // 自定义校验的函数
+    validator = (rule, value, callback) => {
+        // error传是校验结果   null：校验通过   {}：校验失败
+        // value传的当前输入的值
+        const name = rule.fullField === 'username' ? '用户名' :  '密码';
+
+        if(!value) {
+            // !value表示没有输入
+            callback(`必须输入密码！`);
+        } else if(value.length < 4) {
+            callback(`${name}必须大于4位`);
+        } else if(value.length > 15) {
+            callback(`${name}必须小于15位`);
+        } else if (!/^[a-zA-Z0-9+$]/.test(value)) {
+            callback(`${name}只能包含英文字母、数字和下划线`);
+        } else {
+            // 校验成功，则不传参
+            callback();
+        }
+    };
+
     render() {
         // getFieldDecorator为一个高阶组件
         const { getFieldDecorator } = this.props.form;
@@ -31,10 +52,14 @@ class Login extends Component{
                             {
                                 getFieldDecorator("username", {
                                         rules: [
-                                            {required: true, message: '请输入用户名！'},
+                                            /*{required: true, message: '请输入用户名！'},
                                             {min: 4, message: '用户名必须大于4位'},
                                             {max: 15, message: '用户名必须小于15位'},
                                             {pattern: /^[a-zA-Z0-9]+$/,message: '用户名只能包含英文字母、数字和下划线'}
+                                        */
+                                            {
+                                                validator: this.validator
+                                            }
                                         ]
                                     }
                                 )(
@@ -43,7 +68,18 @@ class Login extends Component{
                             }
                         </Item>
                         <Item>
-                            <Input prefix={<Icon type="lock" />} placeholder="密码" type="password"/>
+                            {
+                                getFieldDecorator("password", {
+                                        rules: [
+                                            {
+                                                validator: this.validator
+                                            }
+                                        ]
+                                    }
+                                )(
+                                    <Input prefix={<Icon type="lock" />} placeholder="密码" type="password"/>
+                                )
+                            }
                         </Item>
                         <Item>
                             <Button type="primary" htmlType="submit" className="login-btn">登录</Button>
