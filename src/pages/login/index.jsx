@@ -34,7 +34,7 @@ class Login extends Component{
 
         if(!value) {
             // !value表示没有输入
-            callback(`必须输入密码！`);
+            callback(`必须输入${name}！`);
         } else if(value.length < 4) {
             callback(`${name}必须大于4位`);
         } else if(value.length > 15) {
