@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, message} from 'antd';
+import axios from 'axios';
 // 引入logo图片资源，在React脚手架中图片必须引入才会打包使用
-import logo from './logo.png';
+import logo from '../../assets/images/logo.png';
 
 // import 语法必须在最上面，只要不是在最上面就会报错
 import './index.less';
@@ -20,7 +21,27 @@ class Login extends Component{
           if(!error) {
               // 校验通过,获取表单的值
               const { username, password } = values;
-              console.log(username, password);
+              // 发送请求，请求登录
+              axios.post('/login', { username, password})
+                  .then((res) => {
+                      const { data } = res;
+                      console.log(data);
+
+                      if (data.status === 0) {
+                          // 请求成功，跳转至主页面Admin
+                          // <Redirect to='/'> 在render方法中推荐使用
+                          /*this.props.history.replace('/') 在回调函数中推荐使用
+                             replace 不缓存之前的网址，不需要返回之前的页面中推荐使用
+                             push 缓存之前的网址，需要返回之前的页面中推荐使用*/
+                          this.props.history.replace('/');
+                      } else {
+                          // 请求失败
+                          message.error(data.msg, 2);
+                      }
+                  })
+                  .catch((err) => {
+                      message.error("网络出现异常，请刷新重试", 2);
+                  })
           } else {
               // 校验失败，则不获取表单的值
               console.log('登录表单校验失败：', error);
