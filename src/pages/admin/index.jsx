@@ -3,6 +3,7 @@ import { Layout } from 'antd';
 import  LeftNav from '../../components/left-nav';
 import  HeaderMain from '../../components/header-main';
 import { getItem } from '../../utils/storage-tools';
+import { reqValidateUserInfo } from '../../api';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -17,15 +18,35 @@ export default class Admin extends Component {
     };
 
     // 在渲染之前校验，校验一次
-    componentWillMount() {
+    async componentWillMount() {
         // 判断登录是否成功
         // 因为获取的是字符串，所以需要调用JSON.parse()方法转换为对象
         const user = getItem();
-        if (!user || !user._id) {
+        /*if (!user || !user._id) {
             // 判断是否登录，登录就跳转，没有登录直接用地址跳转你就重定向登录页面
             this.props.history.replace('/login')
-        }
+        } else {
+            // 数据存在，就发送请求验证用户信息是否合法
+            // 数据有_id、username、create_time、role（权限列表）
+            // 发送_id验证比较安全，因为_id是唯一的
+            // {"_id":"5d0c3e07fbe248232c6ca0d3","username":"admin","create_time":1561083399037,"role":{"menus":[]}}
+            reqValidateUserInfo(user._id);
+            if(!result) {
+                this.props.history.replace('/login')
+            }
+        }*/
 
+
+        // 用户是刷新进来的才会进来这个判断，获取值，如果存在就发请求
+        if (user && user._id) {
+            // 发送请求验证，用户信息是否合法
+            // 如果用户是登录进来的，就不需要再次验证，如果用户是使用之前的值，刷新访问进来的，就需要
+            const result = await reqValidateUserInfo(user._id);
+            // 判断如果result是有值的，就返回
+            if (result) return;
+        }
+        // 如果值不存在，或者验证失败就不跳转
+        this.props.history.replace('/login');
     }
 
     render() {
