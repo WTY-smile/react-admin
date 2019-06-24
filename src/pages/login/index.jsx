@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import { Form, Icon, Input, Button, message } from 'antd';
+import { Form, Icon, Input, Button } from 'antd';
 
 // 引入logo图片资源，在React脚手架中图片必须引入才会打包使用
 import logo from '../../assets/images/logo.png';
 
 // import 语法必须在最上面，只要不是在最上面就会报错
 import './index.less';
-import axios from "axios";
+import {reqLogin} from "../../api";
 
 const Item = Form.Item;
 
@@ -16,39 +16,24 @@ class Login extends Component {
         e.preventDefault();
 
         // 校验表单并获取表单的值
-        this.props.form.validateFields((error, values) => {
-            console.log(error, values);
+         this.props.form.validateFields(async (error, values) => {
+            // console.log(error, values);
             // error 代表表单校验结果   null为校验通过   {}为校验失败，里面为失败的原因
             // values 获取传入表单的值
             if (!error) {
                 // 校验通过
                 const { username, password } = values;
                 // 发送请求，请求登录
-                axios.post('/login', { username, password})
-                    .then((res) => {
-                        const { data } = res;
-                        console.log(data);
+                const result = await reqLogin(username, password);
+                if (result) {
+                    // 登录成功,就跳转页面
+                    this.props.history.replace('/');
+                } else {
+                    // 登录失败,重置密码框
+                    this.props.form.resetFields(['password']);
 
-                        if (data.status === 0) {
-                            // 请求成功，跳转至主页面Admin
-                            // <Redirect to='/'> 在render方法中推荐使用
-                            /*this.props.history.replace('/') 在回调函数中推荐使用
-                               replace 不缓存之前的网址，不需要返回之前的页面中推荐使用
-                               push 缓存之前的网址，需要返回之前的页面中推荐使用*/
-                            this.props.history.replace('/');
-                        } else {
-                            // 请求失败，提示用户
-                            message.error(data.msg, 2);
-                            // 重置密码为空
-                            this.props.form.resetFields(['password']);
-                        }
-                    })
-                    .catch((err) => {
-                        // 请求失败：网络错误、服务器内部错误等
-                        message.error('网络出现异常，请刷新重试', 2);
-                        // 重置密码为空
-                        this.props.form.resetFields(['password']);
-                    })
+                }
+
             } else {
                 // 校验失败
                 console.log('登录表单校验失败:', error);
