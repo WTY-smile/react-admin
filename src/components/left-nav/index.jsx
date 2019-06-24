@@ -1,16 +1,16 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { Icon, Menu } from "antd";
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import menuList from '../../config/menu-config';
 
-import './index.less'
+import './index.less';
 import logo from '../../assets/images/logo.png';
 
 const { SubMenu, Item } = Menu;
 
-export default class LeftNav extends Component{
+class LeftNav extends Component{
     static propTypes = {
         collapsed: PropTypes.bool.isRequired
     };
@@ -25,6 +25,7 @@ export default class LeftNav extends Component{
     };
 
     componentWillMount() {
+        const { pathname } = this.props.location;
         // 生成菜单
         this.menus = menuList.map((menu) => {
             // 判断是哪一级菜单
@@ -32,24 +33,31 @@ export default class LeftNav extends Component{
             if (children) {
                 // 有children为二级菜单
                 return <SubMenu
-                    key="menu.key"
+                    key={menu.key}
                     title={
                         <span>
-                  <Icon type={menu.icon} />
-                  <span>{menu.title}</span>
-                </span>
+                            <Icon type={menu.icon} />
+                             <span>{menu.title}</span>
+                        </span>
                     }
                 >
                     {
-                        children.map((item) =>  this.createMenu(item))
-
+                        children.map((item) => {
+                            if (item.key === pathname) {
+                                // 当前地址为二级菜单，需要展开
+                                this.openKey = menu.key;
+                            }
+                            return this.createMenu(item);
+                        })
                     }
                 </SubMenu>;
             } else {
                 // 一级菜单
                 return this.createMenu(menu)
             }
-        })
+        });
+
+        this.selectedKey = pathname;
     }
 
     render() {
@@ -59,7 +67,7 @@ export default class LeftNav extends Component{
                 <img src={logo} alt="logo"/>
                 <h1 style={{display: collapsed ? "none" : "block"}}>硅谷后台</h1>
             </Link>
-            <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
+            <Menu theme="dark" defaultSelectedKeys={[this.selectedKey]} defaultOpenKeys={[this.openKey]} mode="inline">
                 {
                     this.menus
                 }
@@ -118,6 +126,9 @@ export default class LeftNav extends Component{
                     </Item>
                 </SubMenu>*/}
             </Menu>
-        </div>
+        </div>;
     }
 }
+
+// withRouter是一个高阶组件，向非路由组件传递三大属性：history、location、match
+export default withRouter(LeftNav);
