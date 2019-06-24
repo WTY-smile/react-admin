@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 
-import { Form, Icon, Input, Button, message} from 'antd';
-import axios from 'axios';
+import { Form, Icon, Input, Button } from 'antd';
 // 引入logo图片资源，在React脚手架中图片必须引入才会打包使用
 import logo from '../../assets/images/logo.png';
 
@@ -10,43 +9,26 @@ import './index.less';
 
 const Item = Form.Item;
 
-class Login extends Component{
+class Login extends Component {
     // 阻止submit默认提交表单
     login = (e) => {
       e.preventDefault();
 
-      this.props.form.validateFields = (error, values) => {
-          // error传是校验结果   null：校验通过   {}：校验失败
-          // values获取当前输入表单的值
-          if(!error) {
-              // 校验通过,获取表单的值
-              const { username, password } = values;
-              // 发送请求，请求登录
-              axios.post('/login', { username, password})
-                  .then((res) => {
-                      const { data } = res;
-                      console.log(data);
-
-                      if (data.status === 0) {
-                          // 请求成功，跳转至主页面Admin
-                          // <Redirect to='/'> 在render方法中推荐使用
-                          /*this.props.history.replace('/') 在回调函数中推荐使用
-                             replace 不缓存之前的网址，不需要返回之前的页面中推荐使用
-                             push 缓存之前的网址，需要返回之前的页面中推荐使用*/
-                          this.props.history.replace('/');
-                      } else {
-                          // 请求失败
-                          message.error(data.msg, 2);
-                      }
-                  })
-                  .catch((err) => {
-                      message.error("网络出现异常，请刷新重试", 2);
-                  })
-          } else {
-              // 校验失败，则不获取表单的值
-              console.log('登录表单校验失败：', error);
-          }
-        }
+      // 校验表单并获取表单的值
+        this.props.form.validateFields((error, values) => {
+            console.log(error, values);
+            // error 代表表单校验结果   null为校验通过   {}为校验失败，里面为失败的原因
+            // values 获取传入表单的值
+            if (!error) {
+                // 校验通过
+                const { username, password} = values;
+                // 发送请求，请求登录
+                console.log(username,password);
+            } else {
+                // 校验失败
+                console.log('登录表单校验失败:', error);
+            }
+        })
     };
 
     // 自定义校验的函数
