@@ -3,6 +3,7 @@ import { Modal } from 'antd';
 import { withRouter } from 'react-router-dom';
 import dayjs from 'dayjs';
 
+import menuList from '../../config/menu-config';
 import MyButton from "../my-button";
 import {getItem, removeItem} from "../../utils/storage-tools";
 import { reqWeather } from "../../api";
@@ -20,6 +21,9 @@ class HeaderMain extends Component {
     // 因为用户名只需要读取一次,在渲染之前就要使用，必须挂载到this上才能使用
     componentWillMount() {
         this.username = getItem().username;
+        // 在这里调用就不会走setInterval，避免一直触发，这样优化性能
+        // 第一次调用需要用this.props的值
+        this.title = this.getTitle(this.props);
     }
 
     async componentDidMount() {
@@ -38,6 +42,12 @@ class HeaderMain extends Component {
             this.setState(result);
         }
 
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        // 在这里调用就不会走setInterval，避免一直触发，这样优化性能
+        // 后面调用需要用nextProps的值，nextProps为最新的值
+        this.title = this.getTitle(nextProps);
     }
 
     // 登出
@@ -73,15 +83,42 @@ class HeaderMain extends Component {
         })
     };
 
+    // 封装成函数，方便调用和查看
+    // nextProps为最新的值，this.props为上一次的值，所以需要调用nextProps的值
+    getTitle = (nextProps) => {
+        // console.log('getTitle()');
+        // 获取当前页面的路径
+        const { pathname } = nextProps.location;
+        // 找到当前页面路径和menuList里的key对应，之后再获取menuList里的title
+        for (let i = 0; i < menuList.length; i++) {
+            const menu = menuList[i];
+            // 判断是否是二级菜单，二级菜单里面有children
+            if (menu.children) {
+                // 有就再进入下面这个循环，匹配key的值
+                for (let j = 0; j < menu.children.length; j++) {
+                    const item = menu.children[j];
+                    if (item.key === pathname) {
+                        return item.title;
+                    }
+                }
+            } else {
+                // 没有就直接匹配key的值，匹配成功就返回里面的title的值
+                if (menu.key === pathname) {
+                    return menu.title;
+                }
+            }
+        }
+    };
     render() {
         const { sysTime, weather, weatherImg } = this.state;
+
         return <div>
             <div className="header-main-top">
                 <span>欢迎, { this.username }</span>
                 <MyButton onClick={this.logout}>退出</MyButton>
             </div>
             <div className="header-main-bottom">
-                <span className="header-main-left">用户管理</span>
+                <span className="header-main-left">{this.title}</span>
                 <div className="header-main-right">
                     <span>{dayjs(sysTime).format('YYYY-MM-DD HH:mm:ss')}</span>
                     <img src={weatherImg} alt="weatherImg"/>
