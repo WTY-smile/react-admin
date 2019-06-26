@@ -19,10 +19,11 @@ export const reqValidateUserInfo = (id) => ajax('/validate/user', {id}, 'POST');
 
 // 只有登录成功跳转到admin页面才需要调用加载天气数据，所以一定要在外面包裹一层函数再暴露，作为函数的返回值返回，要调用时再调用
 export const reqWeather = function () {
+    let cancel = null;
     // jsonp(url, opts, fn) 调用jsonp传的三个参数
     // jsonp为一个异步代码，想要得到其返回值，必须在外面包裹Promise
-    return new Promise((resolve, reject) => {
-        jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2', {}, function (err, data) {
+    const promise =  new Promise((resolve, reject) => {
+        cancel = jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2', {}, function (err, data) {
             if (!err) {
                 // 获取天气数据
                 const { dayPictureUrl, weather } = data.results[0].weather_data[0];
@@ -37,5 +38,11 @@ export const reqWeather = function () {
             }
         });
     });
+
+    return {
+        promise,
+        cancel
+    }
 };
 
+export const reqCategories = (parentId) => ajax('/manage/category/list', {parentId});

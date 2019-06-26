@@ -25,7 +25,14 @@ class LeftNav extends Component{
     };
 
     componentWillMount() {
-        const { pathname } = this.props.location;
+        let { pathname } = this.props.location;
+
+        const pathnameReg = /^\/product\//;
+
+        if (pathnameReg.test(pathname)) {
+            pathname = pathname.slice(0,8);
+        }
+
         // 生成菜单
         this.menus = menuList.map((menu) => {
             // 判断是哪一级菜单

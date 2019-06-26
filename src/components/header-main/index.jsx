@@ -28,14 +28,18 @@ class HeaderMain extends Component {
 
     async componentDidMount() {
         // 每隔一秒更新时间为当前时间
-        setInterval(() => {
+        this.timeId = setInterval(() => {
             this.setState({
                 sysTime: Date.now()
             })
         },1000);
 
         // 发送请求，请求天气
-        const result = await reqWeather();
+        const { promise, cancel } = reqWeather();
+
+        this.cancel = cancel;
+
+        const result = await promise;
 
         if (result) {
             // 如果有值表示加载成功
@@ -48,6 +52,11 @@ class HeaderMain extends Component {
         // 在这里调用就不会走setInterval，避免一直触发，这样优化性能
         // 后面调用需要用nextProps的值，nextProps为最新的值
         this.title = this.getTitle(nextProps);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timeId);
+        this.cancel();
     }
 
     // 登出
@@ -88,7 +97,15 @@ class HeaderMain extends Component {
     getTitle = (nextProps) => {
         // console.log('getTitle()');
         // 获取当前页面的路径
-        const { pathname } = nextProps.location;
+        let { pathname } = nextProps.location;
+
+        const pathnameReg = /^\/product\//;
+
+        // 判断pathname是否以/product/开头，是就匹配，获取其title
+        if (pathnameReg.test(pathname)) {
+            pathname = pathname.slice(0,8);
+        }
+
         // 找到当前页面路径和menuList里的key对应，之后再获取menuList里的title
         for (let i = 0; i < menuList.length; i++) {
             const menu = menuList[i];
