@@ -22,7 +22,7 @@ export const reqWeather = function () {
     let cancel = null;
     // jsonp(url, opts, fn) 调用jsonp传的三个参数
     // jsonp为一个异步代码，想要得到其返回值，必须在外面包裹Promise
-    const promise =  new Promise((resolve, reject) => {
+    const promise =  new Promise((resolve,  reject) => {
         cancel = jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2', {}, function (err, data) {
             if (!err) {
                 // 获取天气数据
@@ -46,3 +46,5 @@ export const reqWeather = function () {
 };
 
 export const reqCategories = (parentId) => ajax('/manage/category/list', {parentId});
+
+export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list', {pageNum, pageSize});
