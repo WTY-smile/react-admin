@@ -3,6 +3,7 @@ import { Card, Form, Button, Icon, Input, Cascader, InputNumber  } from "antd";
 
 import './index.less';
 import {reqCategories} from "../../../api";
+import RichTextEditor from './rich-text-editor';
 
 const { Item } = Form;
 
@@ -100,6 +101,7 @@ export default class SaveUpdate extends Component {
                     />
                 </Item>
                 <Item label='商品详情' wrapperCol={{span:20}}>
+                    <RichTextEditor />
                 </Item>
                 <Item>
                     <Button type='primary' className='add-product-btn' htmlType='submit'>提交</Button>
